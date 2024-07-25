@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.languagetool'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.languagetool:languagetool-core:6.4'
+    implementation 'org.jetbrains:annotations:23.1.0'
+}
