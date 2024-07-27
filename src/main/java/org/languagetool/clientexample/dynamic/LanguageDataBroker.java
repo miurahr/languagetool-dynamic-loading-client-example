@@ -14,19 +14,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class LanguageToolDataBroker implements ResourceDataBroker {
+public class LanguageDataBroker implements ResourceDataBroker {
 
     private final String resourceDir;
     private final String rulesDir;
     private final URLClassLoader classLoader;
 
-    public LanguageToolDataBroker(URLClassLoader classLoader, String resourceDir, String rulesDir) {
+    public LanguageDataBroker(URLClassLoader classLoader, String resourceDir, String rulesDir) {
         this.classLoader = classLoader;
         this.resourceDir = resourceDir == null ? "" : resourceDir;
         this.rulesDir = rulesDir == null ? "" : rulesDir;
     }
 
-    public LanguageToolDataBroker(URLClassLoader classLoader) {
+    public LanguageDataBroker(URLClassLoader classLoader) {
         this(classLoader, ResourceDataBroker.RESOURCE_DIR, ResourceDataBroker.RULES_DIR);
     }
 
@@ -99,6 +99,10 @@ public class LanguageToolDataBroker implements ResourceDataBroker {
     @SuppressWarnings("unchecked")
     private @NotNull Class<? extends Language> getLanguageClass() {
         try {
+            Language lang = LanguageManager.getLTLanguage("en", "US");
+            if (lang != null) {
+                return lang.getClass();
+            }
             Class<?> clazz = classLoader.loadClass("org.languagetool.language.AmericanEnglish");
             if (Language.class.isAssignableFrom(clazz)) {
                 return (Class<? extends Language>) clazz;
@@ -110,10 +114,8 @@ public class LanguageToolDataBroker implements ResourceDataBroker {
 
     @Override
     public InputStream getAsStream(String path) {
-        // first try to load from default resource data broker
         InputStream inputStream = ResourceDataBroker.class.getResourceAsStream(path);
         if (inputStream == null) {
-            // try to load from language class.
             inputStream = getLanguageClass().getResourceAsStream(path);
         }
         return inputStream;
@@ -123,27 +125,26 @@ public class LanguageToolDataBroker implements ResourceDataBroker {
     public URL getAsURL(String path) {
         URL url = ResourceDataBroker.class.getResource(path);
         if (url == null) {
-            url = getLanguageClass().getResource(path);
+           url = getLanguageClass().getResource(path);
         }
         return url;
     }
 
     @Override
     public @NotNull List<URL> getAsURLs(String path) {
-        List<URL> urls;
         Enumeration<URL> enumeration = null;
         try {
             enumeration = ResourceDataBroker.class.getClassLoader().getResources(path);
         } catch (IOException ignored) {
         }
         if (enumeration != null) {
-            urls = Collections.list(enumeration);
+            List<URL> urls = Collections.list(enumeration);
             if (!urls.isEmpty()) {
                 return urls;
             }
         }
         try {
-            enumeration = classLoader.getResources(path);
+            enumeration = getLanguageClass().getClassLoader().getResources(path);
         } catch (IOException ignored) {
             return Collections.emptyList();
         }

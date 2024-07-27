@@ -10,6 +10,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.languagetool:languagetool-core:6.4'
+    implementation('org.languagetool:languagetool-core:6.4') {
+        exclude module: 'json'
+    }
+    implementation 'org.json:json:20240205'
     implementation 'org.jetbrains:annotations:23.1.0'
 }
