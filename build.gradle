@@ -1,18 +1,26 @@
 plugins {
+    id 'application'
     id 'java'
 }
 
 group = 'org.languagetool'
 version = '1.0-SNAPSHOT'
 
+application {
+    setMainClass("org.languagetool.clientexample.dynamic.Main")
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation('org.languagetool:languagetool-core:6.4') {
+    implementation(libs.languagetool.core) {
         exclude module: 'json'
     }
-    implementation 'org.json:json:20240205'
-    implementation 'org.jetbrains:annotations:23.1.0'
+    implementation(libs.json)
+    implementation(libs.annotations)
+    runtimeOnly(libs.slf4j.simple)
 }
+
+run.dependsOn tasks.getByPath(":languages:jar")

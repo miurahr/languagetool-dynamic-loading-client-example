@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+}
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+def plugins = [
+        [ name: 'english', code: 'en'],
+]
+
+def languageToolVersion = libs.versions.languagetool.get()
+def languageToolGroup = libs.languagetool.core.get().group
+def moduleDir = rootProject.layout.buildDirectory.dir("modules").get().asFile
+plugins.forEach { args ->
+    def name = args.get('name')
+    def code = args.get('code')
+    sourceSets.create(name)
+    dependencies.add("${name}CompileOnly", project.rootProject)
+    dependencies.add("${name}CompileOnly", libs.languagetool.core)
+    dependencies.add("${name}Implementation", "${languageToolGroup}:language-${code}:${languageToolVersion}") {
+        exclude module: 'languagetool-core'
+    }
+    configurations.getByName("${name}RuntimeClasspath").exclude(group: languageToolGroup, module: 'languagetool-core')
+    tasks.register("${name}Jar", Jar) {
+        archiveFileName.set("language-${code}.${archiveExtension.get()}")
+        destinationDirectory.set(moduleDir)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from configurations.getByName("${name}RuntimeClasspath").collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        from sourceSets.getByName("${name}").output
+    }
+    tasks.getByName("jar").dependsOn tasks.getByName("${name}Jar")
+}

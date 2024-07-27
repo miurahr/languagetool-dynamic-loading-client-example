@@ -1,0 +1,11 @@
+[versions]
+languagetool = "6.3"
+json = "20240205"
+slf4j = "2.0.7"
+annotations = "23.1.0"
+
+[libraries]
+languagetool-core = {module = "org.languagetool:languagetool-core", version.ref = "languagetool"}
+json = {module = "org.json:json", version.ref = "json"}
+slf4j-simple = {module = "org.slf4j:slf4j-simple", version.ref = "slf4j"}
+annotations = {module = "org.jetbrains:annotations", version.ref = "annotations"}
