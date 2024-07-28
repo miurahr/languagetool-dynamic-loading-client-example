@@ -47,3 +47,20 @@ The function `loadLanguageModule` loads `language-en.jar` from `build/modules/` 
 It also register `LanguageClassBroker` and `LanguageDataBroker` classes into LT core library.
 After loading and registering tricks, application works as usual.
 
+## initialization of language classes
+
+1. Application started
+2. Application calls LanguageTool's `Languages.get`
+3. `Languages.get` calls `LanguageDataBroker` to load LT `properties` file.
+4. `LanguageDataBroker`  ask `LanguageManager` to return LT language AmericanEnglish
+5. `LanguageManager` loops all the FQCN registered from language modules by searching "xx" language.
+6. `LanguageManager` calls  `Languages.getOrAddLanguageByClassName(fqcn)`
+7. `Languages.getOrAddLanguageByClassName(fqcn)`  calls `LanguageClassBroker` to load specified FQCN.
+8. `LanguageClassBroker`  uses a custom class loader which can be obtained with `PluginUtil.getLaungageClassLoader`
+9. `LanguageClassBroker` load LT language class
+10.  `LanguageManager`  compares LT language  Lang-Code and Contry-code. If not a target, try another FQCN.
+11. When `LanguageManager` satisfied to find a LT language class, it returns it to `LanguageDataBroker` (Do you remember Step 3?)
+12.  LanguageTool's `Languages.get()` can obtains a target LT Language classes from a dynamic registry because of step 7  triggers it.
+13. Application obtains a LT language class list finally by `Languages.get`.
+14. Application show a number of languages.
+     
